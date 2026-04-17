@@ -96,10 +96,15 @@ backup_configs() {
   mkdir -p "$BACKUP_DIR"
 
   backup_file_or_dir "$HOME/.config/fish/config.fish"
+
   backup_file_or_dir "$HOME/.config/kitty/kitty.conf"
   backup_file_or_dir "$HOME/.config/kitty/current-theme.conf"
   backup_file_or_dir "$HOME/.config/kitty/themes/noctalia.conf"
+
   backup_file_or_dir "$HOME/.config/fastfetch/config.jsonc"
+
+  backup_file_or_dir "$HOME/.config/noctalia/settings.json"
+  backup_file_or_dir "$HOME/.config/noctalia/colors.json"
 
   if need_cmd niri; then
     backup_file_or_dir "$HOME/.config/niri/config.kdl"
@@ -149,6 +154,7 @@ copy_configs() {
   mkdir -p "$HOME/.config/fish"
   mkdir -p "$HOME/.config/kitty/themes"
   mkdir -p "$HOME/.config/fastfetch"
+  mkdir -p "$HOME/.config/noctalia"
 
   cp -f "$REPO_DIR/.config/fish/config.fish" "$HOME/.config/fish/config.fish"
 
@@ -157,6 +163,9 @@ copy_configs() {
   cp -f "$REPO_DIR/.config/kitty/themes/noctalia.conf" "$HOME/.config/kitty/themes/noctalia.conf"
 
   cp -f "$REPO_DIR/.config/fastfetch/config.jsonc" "$HOME/.config/fastfetch/config.jsonc"
+
+  cp -f "$REPO_DIR/.config/noctalia/settings.json" "$HOME/.config/noctalia/settings.json"
+  cp -f "$REPO_DIR/.config/noctalia/colors.json" "$HOME/.config/noctalia/colors.json"
 
   if need_cmd niri; then
     info "Обнаружен niri, ставлю его конфиги..."
