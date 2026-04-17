@@ -19,6 +19,7 @@ PACMAN_PKGS=(
 AUR_PKGS=(
   noctalia-shell
   brrtfetch-git
+  pokemon-colorscripts-git
 )
 
 info() {
@@ -65,6 +66,7 @@ install_yay() {
     makepkg -si --noconfirm
   )
   rm -rf "$tmpdir"
+
   ok "yay установлен"
 }
 
@@ -80,6 +82,7 @@ install_packages() {
 
 backup_file_or_dir() {
   local src="$1"
+
   if [ -e "$src" ]; then
     local rel="${src#$HOME/}"
     mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
@@ -92,12 +95,19 @@ backup_configs() {
   info "Делаю backup текущих конфигов..."
   mkdir -p "$BACKUP_DIR"
 
-  backup_file_or_dir "$HOME/.config/fish"
-  backup_file_or_dir "$HOME/.config/kitty"
-  backup_file_or_dir "$HOME/.config/fastfetch"
+  backup_file_or_dir "$HOME/.config/fish/config.fish"
+  backup_file_or_dir "$HOME/.config/kitty/kitty.conf"
+  backup_file_or_dir "$HOME/.config/kitty/current-theme.conf"
+  backup_file_or_dir "$HOME/.config/kitty/themes/noctalia.conf"
+  backup_file_or_dir "$HOME/.config/fastfetch/config.jsonc"
 
   if need_cmd niri; then
-    backup_file_or_dir "$HOME/.config/niri"
+    backup_file_or_dir "$HOME/.config/niri/config.kdl"
+    backup_file_or_dir "$HOME/.config/niri/noctalia.kdl"
+    backup_file_or_dir "$HOME/.config/niri/cfg/rules.kdl"
+    backup_file_or_dir "$HOME/.config/niri/cfg/layout.kdl"
+    backup_file_or_dir "$HOME/.config/niri/cfg/input.kdl"
+    backup_file_or_dir "$HOME/.config/niri/cfg/keybinds.kdl"
   fi
 
   ok "Backup готов: $BACKUP_DIR"
@@ -115,7 +125,7 @@ clone_repo() {
 }
 
 install_fish_stack() {
-  info "Настраиваю fish + fisher + tide..."
+  info "Устанавливаю fish + fisher + tide..."
 
   mkdir -p "$HOME/.config/fish/functions"
 
@@ -123,13 +133,13 @@ install_fish_stack() {
     fish -c '
       curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish \
       -o ~/.config/fish/functions/fisher.fish
-      and fish -c "fisher install jorgebucaran/fisher IlanCosman/tide@v6"
     '
-  else
-    fish -c 'fisher install IlanCosman/tide@v6'
   fi
 
-  ok "fish/fisher/tide готовы"
+  fish -c 'fisher install jorgebucaran/fisher'
+  fish -c 'fisher install IlanCosman/tide@v6'
+
+  ok "fish/fisher/tide установлены"
 }
 
 copy_configs() {
@@ -177,6 +187,19 @@ install_brrtfetch_gifs() {
   ok "GIF для brrtfetch установлены в $HOME/Pictures/brrtfetch/gifs"
 }
 
+configure_tide() {
+  if ! [ -t 0 ] || ! [ -t 1 ]; then
+    warn "Неинтерактивный терминал, мастер настройки Tide пропускаю"
+    return
+  fi
+
+  info "Сейчас откроется мастер настройки Tide"
+  info "Выбери тему и внешний вид prompt вручную"
+  read -r -p "Нажми Enter, чтобы открыть настройку Tide..."
+
+  fish -i -c 'tide configure'
+}
+
 main() {
   check_arch
   install_yay
@@ -186,6 +209,7 @@ main() {
   install_fish_stack
   copy_configs
   install_brrtfetch_gifs
+  configure_tide
 
   ok "Готово"
   printf "Backup конфигов: %s\n" "$BACKUP_DIR"
